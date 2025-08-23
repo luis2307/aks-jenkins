@@ -41,3 +41,17 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "kubernetes_version" {
+  type = string # ej: "1.30.9"
+}
+variable "acr_sku" {
+  type    = string
+  default = "Standard"
+} 
+variable "aad_admin_group_object_ids" {
+  type = list(string)
+}
+variable "log_analytics_workspace_id" {
+  type = string
+}
