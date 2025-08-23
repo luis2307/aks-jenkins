@@ -55,3 +55,9 @@ variable "aad_admin_group_object_ids" {
 variable "log_analytics_workspace_id" {
   type = string
 }
+
+variable "authorized_ip_ranges" {
+  description = "Lista de rangos IP que pueden acceder al API server."
+  type        = list(string)
+  default     = []
+}

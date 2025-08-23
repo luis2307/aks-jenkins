@@ -34,7 +34,8 @@ module "aks" {
   dns_prefix                 = var.dns_prefix
   kubernetes_version         = var.kubernetes_version
   aad_admin_group_object_ids = var.aad_admin_group_object_ids
-  log_analytics_workspace_id = module.application_insights.log_analytics_workspace_id 
+  log_analytics_workspace_id = module.application_insights.log_analytics_workspace_id
+  authorized_ip_ranges       = var.authorized_ip_ranges
   tags                       = local.common_tags
 
   depends_on = [module.acr, module.application_insights]

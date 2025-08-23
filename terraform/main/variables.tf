@@ -45,3 +45,9 @@ variable "system_max" {
   type    = number
   default = 3
 }
+
+variable "authorized_ip_ranges" {
+  description = "Lista de rangos IP que pueden acceder al API server."
+  type        = list(string)
+  default     = []
+}
