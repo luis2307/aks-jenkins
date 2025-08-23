@@ -1,0 +1,52 @@
+# === Terraform Core ===
+*.tfstate
+*.tfstate.*
+.crash
+.terraform/
+.terraform.lock.hcl
+*.backup
+*.log
+
+# === Variables sensibles ===
+*.tfvars
+*.tfvars.json
+*.tfvars.yml
+secrets.auto.tfvars
+terraform.tfvars
+
+# === Terraform Plan Outputs ===
+*.tfplan
+
+# === IDEs ===
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# === OS Files ===
+.DS_Store
+Thumbs.db
+
+# === Shell scripts output ===
+*.sh~
+*.bak
+
+# === Logs y archivos temporales ===
+*.tmp
+*.temp
+*.log
+*.out
+
+# === Python virtual env (por si usas scripts o automation) ===
+.env/
+venv/
+__pycache__/
+*.pyc
+
+# === Node modules (por si metes algún tool de UI) ===
+node_modules/
+.infracost/*
+
+# === State de módulos remotos si no está en backend ===
+envs/*/terraform.tfstate
+envs/*/terraform.tfstate.*
