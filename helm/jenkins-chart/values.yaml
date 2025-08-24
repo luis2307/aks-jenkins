@@ -4,7 +4,7 @@ namespace:
 
 image:
   repository: jenkins/jenkins
-  tag: lts
+  tag: "lts@sha256:4b4a5eb0f69af5e48c9f55c0aa58da5d098eae1a4156d1e540f2f35c933b8695"
   pullPolicy: IfNotPresent
 
 serviceAccount:
@@ -13,7 +13,7 @@ serviceAccount:
   annotations: {}
 
 rbac:
-  create: false # si tu cluster NO tiene RBAC, déjalo en false
+  create: true # si tu cluster NO tiene RBAC, déjalo en false
 
 service:
   type: LoadBalancer # LoadBalancer | ClusterIP | NodePort
@@ -29,6 +29,9 @@ service:
 ingress:
   enabled: false
   className: nginx
+  tls:
+    - secretName: jenkins-tls
+      hosts: [jenkins.example.com]
   annotations:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
@@ -38,7 +41,6 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
-  tls: [] # - secretName: jenkins-tls; hosts: [jenkins.example.com]
 
 resources:
   requests:
@@ -58,6 +60,12 @@ persistence:
 securityContext:
   runAsUser: 1000
   fsGroup: 1000
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]
+  seccompProfile:
+    type: RuntimeDefault
 
 nodeSelector: {}
 tolerations: []
@@ -83,3 +91,29 @@ autoscaling:
   maxReplicas: 1 # ver nota de RWX/HA
   targetCPUUtilizationPercentage: 70
   targetMemoryUtilizationPercentage: 80
+
+podSecurityContext:
+  runAsUser: 1000
+  runAsNonRoot: true
+  fsGroup: 1000
+
+extraEnv:
+  - name: JENKINS_OPTS
+    value: "--argumentsRealm.roles.user=user --argumentsRealm.roles.admin=admin --sessionTimeout=30"
+
+extraVolumes:
+  - name: kv
+    csi:
+      driver: secrets-store.csi.k8s.io
+      readOnly: true
+      volumeAttributes:
+        secretProviderClass: kv-jenkins
+extraVolumeMounts:
+  - name: kv
+    mountPath: /mnt/kv
+    readOnly: true
+
+azure:
+  tenantId: "<tu-tenant>"
+keyVault:
+  name: "<tu-kv>"

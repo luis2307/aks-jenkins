@@ -7,6 +7,11 @@ metadata:
     {{- include "jenkins.labels" . | nindent 4 }}
 spec:
   replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
   selector:
     matchLabels:
       app: jenkins-server
@@ -18,8 +23,15 @@ spec:
     spec:
       serviceAccountName: {{ default (include "jenkins.fullname" .) .Values.serviceAccount.name }}
       securityContext:
+        allowPrivilegeEscalation: {{ .Values.securityContext.allowPrivilegeEscalation }}
+        readOnlyRootFilesystem: {{ .Values.securityContext.readOnlyRootFilesystem }}
+        capabilities:
+          {{- toYaml .Values.securityContext.capabilities | nindent 14 }}
+        seccompProfile:
+          {{- toYaml .Values.securityContext.seccompProfile | nindent 14 }}
         fsGroup: {{ .Values.securityContext.fsGroup }}
         runAsUser: {{ .Values.securityContext.runAsUser }}
+        
       containers:
         - name: jenkins
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
