@@ -1,0 +1,85 @@
+namespace:
+  create: true # helm -n devops-tools --create-namespace (recomendado)
+  name: devops-tools
+
+image:
+  repository: jenkins/jenkins
+  tag: lts
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  create: true
+  name: jenkins-admin # si vacío, usa fullname
+  annotations: {}
+
+rbac:
+  create: false # si tu cluster NO tiene RBAC, déjalo en false
+
+service:
+  type: LoadBalancer # LoadBalancer | ClusterIP | NodePort
+  port: 8080
+  targetPort: 8080
+  nodePort: null # solo si type=NodePort
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /
+    prometheus.io/port: "8080"
+  exposeAgentPort: false # expone el 50000 en el Service
+
+ingress:
+  enabled: false
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "120"
+  hosts:
+    - host: jenkins.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: [] # - secretName: jenkins-tls; hosts: [jenkins.example.com]
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "500Mi"
+  limits:
+    cpu: "1"
+    memory: "2Gi"
+
+persistence:
+  enabled: true
+  accessModes: ["ReadWriteOnce"]
+  size: 20Gi
+  storageClassName: managed-csi # AKS CSI disk
+  existingClaim: "" # si ya tienes un PVC creado, pon el nombre aquí y no se creará otro
+
+securityContext:
+  runAsUser: 1000
+  fsGroup: 1000
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+probes:
+  liveness:
+    path: /login
+    initialDelaySeconds: 90
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 5
+  readiness:
+    path: /login
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 1 # ver nota de RWX/HA
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80

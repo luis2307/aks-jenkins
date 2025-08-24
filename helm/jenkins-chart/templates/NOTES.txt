@@ -1,0 +1,21 @@
+Jenkins desplegado 🎉
+
+Namespace: {{ .Values.namespace.name }}
+Service:   {{ include "jenkins.fullname" . }} ({{ .Values.service.type }})
+
+Acceso:
+{{- if eq .Values.service.type "LoadBalancer" }}
+  1) Espera la IP externa:
+     kubectl -n {{ .Values.namespace.name }} get svc {{ include "jenkins.fullname" . }} -w
+  2) Abre http://<EXTERNAL-IP>:{{ .Values.service.port }}
+{{- else if eq .Values.service.type "NodePort" }}
+  Abre http://<NodeIP>:{{ .Values.service.nodePort }}
+{{- else }}
+  Port-forward:
+     kubectl -n {{ .Values.namespace.name }} port-forward svc/{{ include "jenkins.fullname" . }} 8080:{{ .Values.service.port }}
+     http://localhost:8080
+{{- end }}
+
+Contraseña inicial (admin):
+  kubectl -n {{ .Values.namespace.name }} exec -it deploy/{{ include "jenkins.fullname" . }} -- \
+    cat /var/jenkins_home/secrets/initialAdminPassword
