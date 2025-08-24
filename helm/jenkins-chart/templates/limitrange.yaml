@@ -1,14 +1,17 @@
+{{- if .Values.limitRange.enabled }}
 apiVersion: v1
 kind: LimitRange
 metadata:
-  name: default-limits
-  namespace: { { .Release.Namespace } }
+  name: {{ include "jenkins.fullname" . }}-limits
+  labels:
+    {{- include "jenkins.labels" . | nindent 4 }}
 spec:
   limits:
     - type: Container
       default:
-        cpu: "1"
-        memory: "2Gi"
+        cpu: {{ .Values.limitRange.default.cpu | quote }}
+        memory: {{ .Values.limitRange.default.memory | quote }}
       defaultRequest:
-        cpu: "500m"
-        memory: "512Mi"
+        cpu: {{ .Values.limitRange.defaultRequest.cpu | quote }}
+        memory: {{ .Values.limitRange.defaultRequest.memory | quote }}
+{{- end }}

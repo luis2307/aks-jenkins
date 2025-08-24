@@ -1,10 +1,18 @@
+{{- if .Values.pdb.enabled }}
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-    name: { ? { include "jenkins.fullname" . } }
-    namespace: { ? { .Release.Namespace } }
+  name: {{ include "jenkins.fullname" . }}-pdb
+  labels:
+    {{- include "jenkins.labels" . | nindent 4 }}
 spec:
-    minAvailable: 1
-    selector:
-        matchLabels:
-            app: jenkins-server
+  selector:
+    matchLabels:
+      {{- include "jenkins.selectorLabels" . | nindent 8 }}
+  {{- with .Values.pdb.maxUnavailable }}
+  maxUnavailable: {{ . }}
+  {{- end }}
+  {{- with .Values.pdb.minAvailable }}
+  minAvailable: {{ . }}
+  {{- end }}
+{{- end }}

@@ -1,6 +1,6 @@
 namespace:
-  create: true # helm -n devops-tools --create-namespace (recomendado)
-  name: devops-tools
+  create: false # helm -n devops-tools --create-namespace (recomendado)
+  name: default #devops-tools
 
 image:
   repository: jenkins/jenkins
@@ -114,6 +114,37 @@ extraVolumeMounts:
     readOnly: true
 
 azure:
-  tenantId: "<tu-tenant>"
+  tenantId: "bbd0cbbc-1f7c-4a54-80df-504d6461656a"
 keyVault:
   name: "<tu-kv>"
+
+limitRange:
+  enabled: true
+  default:
+    cpu: "1"
+    memory: "2Gi"
+  defaultRequest:
+    cpu: "500m"
+    memory: "512Mi"
+
+networkPolicy:
+  defaultDeny:
+    enabled: true
+
+pdb:
+  enabled: true
+  maxUnavailable: 1
+  # minAvailable: 1
+
+resourceQuota:
+  enabled: true
+  hard:
+    pods: "20"
+    requestsCpu: "10"
+    requestsMemory: "20Gi"
+    limitsCpu: "20"
+    limitsMemory: "40Gi"
+
+secretProviderClass:
+  enabled: false # ponlo en true cuando tengas KV y permisos listos
+
